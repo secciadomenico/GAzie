@@ -195,15 +195,27 @@ class Template extends Fpdi {
 				$this->Cell(110,0,'Copia di cortesia del documento elettronico inviato al Sistema di Interscambio',0,1,'L',0,'',1);
 				$this->SetTextColor(0,0,0);
 			}
-            $this->SetFont('helvetica', '', 10);
-            $this->Cell(110, 5, $this->tipdoc, 1, 1, 'L', 1, '', 1);
-            if ($this->tesdoc['tipdoc'] == 'NOP' || $this->withoutPageGroup) {
-                $this->Cell(30, 5);
+          $this->SetFont('helvetica', '', 10);
+            
+            if ($this->layout_pos_logo_on_doc == 'LEFT') {
+                $this->SetX(80);
+                $this->Cell(95, 5, $this->tipdoc, 1, 0, 'L', 1, '', 1); 
+                
+                if ($this->tesdoc['tipdoc'] == 'NOP' || $this->withoutPageGroup) {
+                    $this->Cell(30, 5, '', 0, 1); 
+                } else {
+                    $this->Cell(30, 5, 'Pag. ' . $this->getGroupPageNo() . ' di ' . $this->getPageGroupAlias(), 0, 1, 'L');
+                }
             } else {
-                $this->Cell(30, 5, 'Pag. ' . $this->getGroupPageNo() . ' di ' . $this->getPageGroupAlias(), 0, 0, 'L');
+                $this->Cell(110, 5, $this->tipdoc, 1, 1, 'L', 1, '', 1);
+                
+                if ($this->tesdoc['tipdoc'] == 'NOP' || $this->withoutPageGroup) {
+                    $this->Cell(30, 5);
+                } else {
+                    $this->Cell(30, 5, 'Pag. ' . $this->getGroupPageNo() . ' di ' . $this->getPageGroupAlias(), 0, 0, 'L');
+                }
             }
-            $this->Ln(6);
-            $interlinea = $this->GetY();
+            
             $this->Ln(6);
             $this->SetFont('helvetica', '', 9);
             if (!empty($this->destinazione)) {
@@ -215,20 +227,24 @@ class Template extends Fpdi {
                     $this->MultiCell(80, 4, $this->destinazione, 'LBR', 'L');
                 }
             }
-			if ($this->codice_partner > 0){
-				$this->SetXY(35, $interlinea - 5);
-				$this->Cell(13, 4, $this->descri_partner, 'LT', 0, 'R', 1, '', 1);
-				$this->Cell(72, 4, ': ' . $this->cliente5, 'TR', 1, 0, '', 1);
-				$this->Cell(25);
-				$this->Cell(20, 4, ' cod.: ' . $this->codice_partner, 'LB', 0, 'L');
-				$to='';
-				if (trim($this->cod_univoco)!=''){
-					$to.=' Dest: '.$this->cod_univoco;
-				}
-				if (trim($this->pec_cliente)!=''){
-					$to.=' Pec: '.$this->pec_cliente;
-				}
-				$this->Cell(65, 4,$to.' ' , 'BR', 0, 'L', 0, '', 1);
+			if ($this->codice_partner > 0) {
+                $pos_x_partner = ($this->layout_pos_logo_on_doc == 'LEFT') ? 80 : 35;
+                
+                $this->SetXY($pos_x_partner, $interlinea - 5);
+                $this->Cell(13, 4, $this->descri_partner, 'LT', 0, 'R', 1, '', 1);
+                $this->Cell(72, 4, ': ' . $this->cliente5, 'TR', 1, 0, '', 1);
+                
+                $this->SetX($pos_x_partner);
+                
+                $this->Cell(20, 4, ' cod.: ' . $this->codice_partner, 'LB', 0, 'L');
+                $to='';
+                if (trim($this->cod_univoco)!=''){
+                    $to.=' Dest: '.$this->cod_univoco;
+                }
+                if (trim($this->pec_cliente)!=''){
+                    $to.=' Pec: '.$this->pec_cliente;
+                }
+                $this->Cell(65, 4, $to.' ' , 'BR', 0, 'L', 0, '', 1);
             }
 			$this->SetXY(110, $interlinea + 6);
             $this->SetFont('helvetica', '', 10);
